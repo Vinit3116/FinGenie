@@ -71,7 +71,7 @@ Now extract from:
     }
 
     payload = {
-        "model": "meta-llama/llama-3.1-8b-instruct:free",  # ✅ Free OpenRouter model
+        "model": "meta-llama/llama-3.1-8b-instruct",  # ✅ Free OpenRouter model
         "messages": [{"role": "user", "content": prompt}]
     }
 

@@ -53,22 +53,32 @@ A comprehensive full-stack AI-powered personal finance assistant that transforms
 
 ## 📁 Project Structure
 
+```text
 FinGenie/
-├── client/ # React frontend
-│ ├── src/
-│ │ ├── components/
-│ │ │ └── VoiceRecorder.jsx # Voice input component
-│ │ ├── App.jsx # Main application
-│ │ └── main.jsx # Entry point
-│ ├── package.json
-│ └── package-lock.json
-├── server/ # FastAPI backend
-│ ├── main.py # API server
-│ └── requirements.txt # Python dependencies
-├── docs/ # Project documentation
-│ └── PromptTuning.md # AI prompt engineering docs
-├── package.json # Root package configuration
+├── .gitignore                   # Main gitignore for the project
+├── client/                      # React Frontend
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   └── VoiceRecorder.jsx
+│   │   ├── App.css
+│   │   └── App.jsx
+│   │   └── index.css
+│   │   └── main.jsx
+│   ├── package.json
+│   └── package-lock.json
+├── server/                      # FastAPI Backend
+│   ├── main.py                  # FastAPI app & API endpoints
+│   ├── .env.example             # Environment variable template
+│   └── requirements.txt
+├── venv/
+├── docs/                        # Project documentation
+│   └── PromptTuning.md
+├── package.json
+├── package-lock.json
 └── README.md
+```
 
 ## 🚀 Installation & Setup
 

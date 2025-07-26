@@ -1,78 +1,100 @@
 // client/src/components/VoiceRecorder.jsx
-import { useState, useRef } from "react";
-import axios from "axios";
 
-const VoiceRecorder = () => {
-  const [transcript, setTranscript] = useState("");
+import { useState } from 'react';
+import TransactionPreviewForm from './transactionPreviewForm';
+
+const VoiceInputComponent = () => {
   const [parsedData, setParsedData] = useState(null);
-  const [error, setError] = useState("");
-  const recognitionRef = useRef(null);
+  const [transcript, setTranscript] = useState('');
+  const [isListening, setIsListening] = useState(false);
 
   const startListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Speech Recognition not supported in this browser");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-IN"; // Indian accent support
-    recognition.interimResults = false;
-
-    recognition.onresult = (event) => {
-      const speechResult = event.results[0][0].transcript;
-      setTranscript(speechResult);
-      callLLMParser(speechResult);
-    };
-
-    recognition.onerror = (event) => {
-      setError("Speech Recognition Error: " + event.error);
-    };
-
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = 'en-US';
     recognition.start();
-    recognitionRef.current = recognition;
+    setIsListening(true);
+
+    recognition.onresult = async (event) => {
+      const voiceText = event.results[0][0].transcript;
+      setTranscript(voiceText);
+      setIsListening(false);
+
+      try {
+        const res = await fetch('http://localhost:8000/voice-expense', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transcript: voiceText }),
+        });
+
+        if (!res.ok) throw new Error('Failed to parse transaction');
+
+        const result = await res.json();
+
+        // Format result defensively
+        const formatted = {
+          amount: result.amount || '',
+          category: result.category || '',
+          mode: result.mode || '',
+          date: result.date || '',
+          split_with: Array.isArray(result.split_with) ? result.split_with : [],
+          note: result.note || '',
+        };
+
+        setParsedData(formatted);
+      } catch (err) {
+        console.error('Parsing error:', err);
+        alert('Failed to process voice input. Please try again.');
+      }
+    };
+
+    recognition.onerror = (err) => {
+      console.error('Speech recognition error:', err);
+      setIsListening(false);
+      alert('Voice input failed. Please try again.');
+    };
   };
 
-  const callLLMParser = async (speech) => {
+  const saveTransaction = async (data) => {
     try {
-      const res = await axios.post("http://localhost:8000/parse-expense", {
-        transcript: speech
+      const res = await fetch('http://localhost:8000/save-expense', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
-      setParsedData(res.data.parsed);
-      setError("");
+
+      if (res.ok) {
+        alert('Transaction saved!');
+        setParsedData(null);
+        setTranscript('');
+      } else {
+        const error = await res.json();
+        alert(`Failed to save: ${error.message || 'Unknown error'}`);
+      }
     } catch (err) {
-      console.error("API Error:", err);
-      setError("Failed to parse expense. Please try again.");
+      console.error('Saving error:', err);
+      alert('Error saving transaction.');
     }
   };
 
   return (
-    <div className="p-4 rounded-xl shadow bg-white max-w-md mx-auto mt-4">
-      <h2 className="text-xl font-semibold mb-2">🎤 Speak your expense</h2>
-      <button onClick={startListening} className="bg-blue-600 text-white px-4 py-2 rounded">
-        Start Recording
+    <div className="space-y-4">
+      <button
+        onClick={startListening}
+        disabled={isListening}
+        className={`px-4 py-2 rounded text-white ${isListening ? 'bg-gray-400' : 'bg-blue-600'}`}
+      >
+        🎙️ {isListening ? 'Listening...' : 'Speak Transaction'}
       </button>
 
       {transcript && (
-        <div className="mt-3">
-          <p className="font-medium">You said:</p>
-          <p className="text-gray-700 italic">“{transcript}”</p>
-        </div>
+        <p className="mt-2 italic text-gray-600">You said: &#39;{transcript}&#39;</p>
       )}
 
       {parsedData && (
-        <div className="mt-4 bg-gray-100 p-3 rounded border border-gray-300">
-          <p><strong>Amount:</strong> ₹{parsedData.amount}</p>
-          <p><strong>Category:</strong> {parsedData.category}</p>
-          <p><strong>Mode:</strong> {parsedData.mode}</p>
-          <p><strong>Date:</strong> {parsedData.date}</p>
-          <p><strong>Split With:</strong> {parsedData.split_with?.join(", ") || "—"}</p>
-        </div>
+        <TransactionPreviewForm parsedData={parsedData} onSave={saveTransaction} />
       )}
-
-      {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
 };
 
-export default VoiceRecorder;
+export default VoiceInputComponent;

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import "./ExpenseHistory.css";
+import { exportToCSV } from "../utils/exportToCSV";
 
 const ExpenseHistoryTable = ({ onDataChange }) => {
   const [expenses, setExpenses] = useState([]);
@@ -49,7 +50,6 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
       const data = await res.json();
       const transactions = data.transactions || data || [];
 
-      // Normalize and map payment to consistent display values
       const mapping = {
         gpay: "GPay",
         "google pay": "GPay",
@@ -68,7 +68,6 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
       };
 
       const normalized = transactions.map((tx) => {
-        // consider many possible key names returned by backend
         const raw =
           tx.payment_mthod ??
           tx.payment_method ??
@@ -81,7 +80,6 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
         const rawStr = String(raw || "").trim();
         const lower = rawStr.toLowerCase();
 
-        // try to find mapping where key equals or is contained in raw
         let normalizedVal = "";
         if (rawStr) {
           for (const key of Object.keys(mapping)) {
@@ -91,11 +89,9 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
             }
           }
         }
-        // If not found and raw exists, attempt to use capitalized version
         if (!normalizedVal && rawStr) {
           normalizedVal = rawStr.charAt(0).toUpperCase() + rawStr.slice(1);
         }
-        // final fallback
         if (!normalizedVal) normalizedVal = "Cash";
 
         return {
@@ -145,7 +141,6 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
       return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
     });
 
-  // Unique lists for filters (from normalized field)
   const uniqueCategories = [...new Set(expenses.map((e) => e.category).filter(Boolean))];
   const uniquePayments = [...new Set(expenses.map((e) => e.payment_mthod).filter(Boolean))];
 
@@ -177,6 +172,7 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
         <h2>📊 Expense History ({processedExpenses.length})</h2>
       </header>
 
+      {/* Filters & Actions */}
       <section className="filters">
         <input
           type="text"
@@ -204,8 +200,10 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
         </select>
 
         <button onClick={fetchExpenses}>🔄 Refresh</button>
+        <button onClick={() => exportToCSV(processedExpenses)}>📤 Export CSV</button>
       </section>
 
+      {/* Table */}
       <section className="table-wrapper">
         <table>
           <thead>
@@ -236,14 +234,10 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
                   <td>{formatDate(exp.date)}</td>
                   <td className="right">{formatCurrency(exp.amount)}</td>
                   <td>
-                    <span className="chip">
-                      {CATEGORY_ICONS[exp.category?.toLowerCase()] || "📝"} {exp.category || "—"}
-                    </span>
+                    {CATEGORY_ICONS[exp.category?.toLowerCase()] || "📝"} {exp.category || "—"}
                   </td>
                   <td>
-                    <span className="chip">
-                      {getPaymentIcon(exp.payment_mthod)} {exp.payment_mthod || "Cash"}
-                    </span>
+                    {getPaymentIcon(exp.payment_mthod)} {exp.payment_mthod || "Cash"}
                   </td>
                 </tr>
               ))

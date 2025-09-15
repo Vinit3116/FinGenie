@@ -1,0 +1,423 @@
+.expense-container {
+  max-width: 980px;
+  margin: 24px auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  font-family: "Inter", "Segoe UI", Tahoma, sans-serif;
+  border: 1px solid #e5e7eb;
+}
+
+/* Header */
+.expense-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 20px 24px;
+  font-weight: 700;
+  position: relative;
+}
+
+.expense-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+}
+
+.expense-header h2 {
+  font-size: 24px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.filters input,
+.filters select,
+.filters button {
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+}
+
+.filters input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filters input:focus,
+.filters select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.filters button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 120px;
+}
+
+.filters button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* Table */
+.table-wrapper {
+  overflow-x: auto;
+  padding: 20px 24px 24px 24px;
+  background: #ffffff;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+/* Header Row Styling */
+thead th {
+  text-align: left;
+  font-size: 15px;
+  color: #374151;
+  padding: 16px 16px;
+  background: #f9fafb;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid #e5e7eb;
+  position: relative;
+}
+
+/* First header cell */
+thead th:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  border-right: none;
+}
+
+/* Middle header cells */
+thead th:not(:first-child):not(:last-child) {
+  border-left: none;
+  border-right: none;
+}
+
+/* Last header cell */
+thead th:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-left: none;
+}
+
+/* ✅ CENTER THE AMOUNT COLUMN HEADER */
+thead th:nth-child(3) {
+  text-align: center;
+}
+
+thead th.sortable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+thead th.sortable:hover {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+}
+
+/* Data Rows */
+tbody tr {
+  background: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+tbody tr:hover {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Data Cells */
+td {
+  padding: 16px;
+  font-size: 15px;
+  color: #1f2937;
+  border-top: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+  font-weight: 500;
+}
+
+/* First data cell */
+td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  border-left: 1px solid #f3f4f6;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Middle data cells */
+td:not(:first-child):not(:last-child) {
+  border-left: none;
+  border-right: none;
+}
+
+/* Last data cell */
+td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-right: 1px solid #f3f4f6;
+}
+
+/* ✅ CENTER ALL AMOUNT VALUES */
+td:nth-child(3) {
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #059669;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  position: relative;
+}
+
+/* Add subtle highlight to amount column */
+td:nth-child(3)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-radius: 0 2px 2px 0;
+}
+
+td.right {
+  text-align: center; /* Override this since we want center alignment */
+}
+
+/* Enhanced Chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f3f6ff 0%, #e0e7ff 100%);
+  color: #3730a3;
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid #c7d2fe;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(67, 56, 202, 0.2);
+}
+
+/* Payment method chips with different colors */
+td:nth-child(5) .chip {
+  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+  color: #92400e;
+  border-color: #fbbf24;
+}
+
+/* Category chips */
+td:nth-child(4) .chip {
+  background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+  color: #5b21b6;
+  border-color: #a78bfa;
+}
+
+/* No-data styling */
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 16px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 12px;
+}
+
+.no-data::before {
+  content: '📭';
+  display: block;
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+/* Footer / Total Row */
+tfoot tr {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+tfoot td {
+  padding: 18px 16px;
+  font-weight: 700;
+  border-top: 3px solid #667eea;
+  font-size: 16px;
+}
+
+tfoot td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+  border-left: 3px solid #667eea;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tfoot td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-right: 3px solid #667eea;
+}
+
+/* ✅ CENTER THE TOTAL AMOUNT */
+tfoot td:nth-child(3) {
+  text-align: center;
+  color: #059669;
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  position: relative;
+}
+
+tfoot td:nth-child(3)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* Loading & Error States */
+.loading,
+.error {
+  padding: 40px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.loading {
+  color: #667eea;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+}
+
+.error {
+  color: #dc2626;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-radius: 12px;
+  border: 2px solid #fecaca;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .expense-container {
+    margin: 16px;
+    border-radius: 12px;
+  }
+  
+  .filters {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .filters input,
+  .filters select,
+  .filters button {
+    width: 100%;
+  }
+  
+  .table-wrapper {
+    padding: 16px;
+  }
+  
+  thead th,
+  td {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+  
+  td:nth-child(3) {
+    font-size: 15px;
+  }
+  
+  ffoot td:nth-child(3) {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  thead th,
+  td {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+  
+  .chip {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Smooth animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+tbody tr {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Loading animation */
+.loading::after {
+  content: '⏳';
+  display: inline-block;
+  margin-left: 8px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -1,36 +1,71 @@
 # server/routes/voice_expense.py
 
 from fastapi import APIRouter, HTTPException, Request
-from config.db import transactions_collection
+from typing import Dict, Any
+
 from server.models.transaction_model import Transaction
+from server.models.transcript_model import TranscriptInput
 from server.utils.llm_parser import get_parsed_expense
 
 router = APIRouter()
 
-@router.post("/voice-expense")
-async def voice_expense(request: Request):
+
+@router.post("/voice-expense", response_model=Dict[str, Any])
+async def parse_voice_expense(request: Request):
+    """
+    Parse voice transcript into structured expense data using LLM.
+    
+    Args:
+        request (Request): HTTP request containing transcript
+        
+    Returns:
+        Dict[str, Any]: Parsed expense data or error information
+    """
     try:
+        # Extract and validate transcript
         data = await request.json()
         transcript = data.get("transcript")
+        
+        if not transcript or not transcript.strip():
+            raise HTTPException(status_code=400, detail="Transcript is required and cannot be empty")
 
-        if not transcript:
-            raise HTTPException(status_code=400, detail="Transcript is required")
+        # Parse transcript using LLM
+        parsed_result = await get_parsed_expense(transcript)
+        print("🧠 LLM Response:", parsed_result)
 
-        parsed_data = await get_parsed_expense(transcript)
+        # Check for parsing errors
+        if "error" in parsed_result:
+            return {
+                "error": "Failed to parse transcript",
+                "details": parsed_result["error"],
+                "raw": parsed_result.get("raw", "")
+            }
 
-        # If response is a JSON string, parse it:
-        if isinstance(parsed_data, str):
-            import json
-            parsed_data = json.loads(parsed_data)
+        # Extract parsed data
+        parsed_data = parsed_result.get("parsed", {})
+        if not parsed_data:
+            return {
+                "error": "No parsed data received from LLM",
+                "raw": parsed_result
+            }
 
-        # If response is nested under 'parsed' key, extract it:
-        if "parsed" in parsed_data:
-            parsed_data = parsed_data["parsed"]
+        # Validate against Transaction schema
+        try:
+            expense = Transaction(**parsed_data)
+            return {
+                "message": "Parsed successfully",
+                "parsed": expense.dict()
+            }
+        except Exception as validation_error:
+            return {
+                "error": "Invalid transaction data",
+                "details": str(validation_error),
+                "raw": parsed_data
+            }
 
-        expense = Transaction(**parsed_data)
-
-        result = await transactions_collection.insert_one(expense.dict())
-        return {"message": "Expense saved successfully", "id": str(result.inserted_id)}
-
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Voice expense processing failed: {str(e)}")
+        print(f"❌ Unexpected error in voice expense parsing: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Voice parsing failed: {str(e)}")

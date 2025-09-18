@@ -1,18 +1,27 @@
-# server/main.py
-
 import os
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from server.routes.transactions import router as transactions_router
-from server.routes.voice_expense import router as voice_expense_router
+# Fixed imports for Render deployment
+try:
+    from routes.transactions import router as transactions_router
+    from routes.voice_expense import router as voice_expense_router
+except ImportError:
+    try:
+        from server.routes.transactions import router as transactions_router
+        from server.routes.voice_expense import router as voice_expense_router
+    except ImportError:
+        import sys
+        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+        from routes.transactions import router as transactions_router
+        from routes.voice_expense import router as voice_expense_router
 
 # FastAPI app
 app = FastAPI(
     title="FinGenie 🧠💰",
-    description="AI-powered voice finance tracker for expense management",
+    description="AI-powered voice expense tracker by Vinit Patel",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -37,7 +46,12 @@ app.include_router(voice_expense_router, prefix="/api", tags=["voice"])
 # Health endpoint
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "FinGenie API"}
+    return {
+        "status": "healthy", 
+        "service": "FinGenie API",
+        "author": "Vinit Patel",
+        "version": "1.0.0"
+    }
 
 # If frontend is built (client/dist), serve it as a SPA (index.html fallback)
 HERE = Path(__file__).resolve().parent
@@ -47,19 +61,22 @@ if FRONTEND_DIST.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND_DIST), html=True), name="frontend")
     print(f"✅ Mounted frontend from: {FRONTEND_DIST}")
 else:
-    print("ℹ️ Frontend build not found at client/dist. Build the client before deploying (npm run build).")
+    print("ℹ️ Frontend build not found at client/dist. Build the client before deploying.")
 
-# Optional root informational endpoint (useful when frontend isn't mounted)
-@app.get("/")
-async def root():
+# API info endpoint (useful for debugging)
+@app.get("/api/")
+async def api_info():
     return {
-        "message": "FinGenie API is running!",
+        "message": "FinGenie API - Portfolio Project",
+        "author": "Vinit Patel",
+        "version": "1.0.0",
         "docs": "/docs",
-        "version": app.version,
+        "health": "/health",
+        "github": "https://github.com/Vinit3116/FinGenie"
     }
 
 # Run locally with: python server/main.py or uvicorn server.main:app --reload
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("server.main:app", host="0.0.0.0", port=port, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

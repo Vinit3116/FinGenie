@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import "./ExpenseHistory.css";
 import { exportToCSV } from "../utils/exportToCSV";
+ import { API_BASE_URL } from '../config/api';
 
 const ExpenseHistoryTable = ({ onDataChange }) => {
   const [expenses, setExpenses] = useState([]);
@@ -12,8 +13,6 @@ const ExpenseHistoryTable = ({ onDataChange }) => {
   const [filterPaymentMethod, setFilterPaymentMethod] = useState("");
   const [sortField, setSortField] = useState("date");
   const [sortDirection, setSortDirection] = useState("desc");
-
-  const API_BASE_URL = "http://localhost:8000/api";
 
   const CATEGORY_ICONS = {
     food: "🍽️",

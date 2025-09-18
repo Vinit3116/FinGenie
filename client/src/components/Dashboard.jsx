@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import ExpenseHistoryTable from "./ExpenseHistoryTable";
 import VoiceRecorder from "./VoiceRecorder";
+import { API_BASE_URL } from '../config/api';
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState("voice");
@@ -16,7 +17,7 @@ const Dashboard = () => {
     // Fetch expense statistics
     const fetchExpenseStats = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/transactions');
+             const response = await fetch(`${API_BASE_URL}/transactions`);
             if (response.ok) {
                 const expenses = await response.json();
 

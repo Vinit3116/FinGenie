@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 
 // API Configuration
-const API_BASE_URL = "http://localhost:8000/api";
+import { API_BASE_URL } from '../config/api';
 const VOICE_EXPENSE_ENDPOINT = `${API_BASE_URL}/voice-expense`;
 const TRANSACTIONS_ENDPOINT = `${API_BASE_URL}/transactions`;
 
